@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  drupal:
+    image: bitnami/drupal:latest
+    ports:
+      - 8080:80
+    volumes:
+      - ./drupal/modules:/bitnami/drupal/modules
+      - ./drupal/themes:/bitnami/drupal/themes
+      - ./drupal/sites:/bitnami/drupal/sites
+    restart: always
+    environment:
+      - MARIADB_HOST=database
+      - MARIADB_DATABASE=final
+      - MARIADB_USER=YAM428
+      - MARIADB_PASSWORD=030718056
+    depends_on:
+      - database
+      - webserver
+
+  database:
+    image: bitnami/mariadb:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/bitnami/mariadb
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_DATABASE=final
+      - MARIADB_USER=YAM428
+      - MARIADB_PASSWORD=030718056
+      
+  webserver:
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/html:/usr/share/nginx/html
+    restart: always
+    depends_on:
+      - drupal
+
+  certbot:
+    image: certbot
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/html:/usr/share/nginx/html
+    depends_on:
+      - webserver
