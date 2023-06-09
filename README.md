@@ -1,1 +1,1 @@
-# LinuxFinal
+# LinuxSistemYönetimiFinal
